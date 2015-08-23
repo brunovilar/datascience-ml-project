@@ -4,6 +4,7 @@ author: "Bruno Vilar"
 date: "22-08-2015"
 output:
   html_document:
+    keep_md: yes
     toc: yes
 ---
 
