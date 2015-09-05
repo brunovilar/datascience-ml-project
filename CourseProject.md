@@ -21,7 +21,7 @@ labeledDataset = read.csv(file = "./data/pml-training.csv", stringsAsFactors=FAL
 unlabledDataset = read.csv(file = "./data/pml-testing.csv")
 ```
 
-As we dont have access to the labels of the second dataset, we need to creat a validation set from the *pml-training.csv*. The test set will be automatically extracted by [Caret package](https://topepo.github.io/caret/) during repeated 10 fold cross validation. The *pml-testing.csv* is considered an alternative validation, performed by Coursera's website. For this purpose, we divided the training into training and validation sets, respectivelly, with 75% and 25% of the rows.
+As we do not have access to the labels of the second dataset, we need to creat a validation set from the *pml-training.csv*. The test set will be automatically extracted by [Caret package](https://topepo.github.io/caret/) during repeated 10 fold cross validation. The *pml-testing.csv* is considered an alternative validation, performed by Coursera's website. For this purpose, we divided the training into training and validation sets, respectivelly, with 75% and 25% of the rows.
 
 
 ```r
@@ -73,7 +73,7 @@ validation = validation[, !(names(validation) %in% columnsToRemove)]
 courseraValidation = courseraValidation[, !(names(courseraValidation) %in% columnsToRemove)]
 ```
 
-Originally we thought in using the timestamp information, extracting features such as week day and hour of the day as a indicative of the users' routines. However, the number of values are limited (as shown below) and it is better for the model to depend only on sensors to recognize the human activities.
+Originally we though about using the timestamp information by extracting features such as week day and hour of the day as a indicative of the users' routines. However, the number of values are limited (as shown below) and it is better for the model to rely only on sensors to recognize the human activities.
 
 
 ```r
@@ -93,7 +93,7 @@ datatable(df, rownames=FALSE, options = list( searching = FALSE, pageLength = 5 
 <!--html_preserve--><div id="htmlwidget-3390" style="width:100%;height:auto;" class="datatables"></div>
 <script type="application/json" data-for="htmlwidget-3390">{"x":{"data":[["Month","Day of Month","Day of Week","Hour"],["12, 11","5, 2, 28, 30","1, 5, 3","11, 14, 13, 17"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Columns</th>\n      <th>Values</th>\n    </tr>\n  </thead>\n</table>","options":{"searching":false,"pageLength":5,"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[5,10,25,50,100]},"callback":null,"filter":"none"},"evals":[]}</script><!--/html_preserve-->
 
-As consequence, we removed timestamp columns (*raw_timestamp_part_1*, *raw_timestamp_part_2* and *cvtd_timestamp*) as well as columns that are used for internal control of the dataset and are not related to the movements (*X*, *new_window* and *num_window*) -- see page 16 of [slides](http://groupware.les.inf.puc-rio.br/public/2012.SBIA.Ugulino.WearableComputing-Presentation.pdf).
+As consequence, we removed timestamp columns (*raw_timestamp_part_1*, *raw_timestamp_part_2* and *cvtd_timestamp*) as well as columns that are used for internal control of the dataset and are not related to the movements (*X*, *new_window* and *num_window*) -- see page 16 of [slides](http://groupware.les.inf.puc-rio.br/public/2012.SBIA.Ugulino.WearableComputing-Presentation.pdf) for more details.
 
 
 ```r
@@ -117,7 +117,7 @@ validation$classe = as.factor(validation$classe)
 courseraValidation$user_name = as.factor(courseraValidation$user_name)
 ```
 
-At the end, 106 columns were removed and the resulting structure is the following:
+At the end, 106 columns were removed. The resulting structure is the following:
 
 
 ```r
@@ -135,14 +135,14 @@ In this section we describe the creation of the models to predict the human acti
 
  - Center and Scale of the numeric values as preprocessing steps;
  - 3 algorithms were tested:
-    - [CART](https://topepo.github.io/caret/Tree_Based_Model.html) as the method; 
+    - [CART](https://topepo.github.io/caret/Tree_Based_Model.html); 
     - [Stochastic Gradient Boosting](https://topepo.github.io/caret/Boosting.html);    
-    - [Random Forest](https://topepo.github.io/caret/Random_Forest.html) as the method;
+    - [Random Forest](https://topepo.github.io/caret/Random_Forest.html);
  - For each algorithm a 10-fold cross with 5 repetitions were performed to select the best model based on parameter tunning;
  - The execution of the models were performed using 5 cores;
- - No down-sampling/up-sampling were applied. There is a difference on the number of classes (A:4185 B:2848 C:2567 D:2412 E:2706 ), but the imbalance is not exagerated. 
+ - No down-sampling/up-sampling were applied. There is a difference on the number of classes (A:4185 B:2848 C:2567 D:2412 E:2706 ), but the imbalance is not exaggerated.
 
-The configuration of the preprocessing, 10 fold cross validation with repetition and use of 5 cores was performed as follows.
+The configuration of the preprocessing steps, performed on all experiments, is presented below. 
 
 ```r
 library(doMC)
@@ -194,9 +194,8 @@ if (file.exists(rObjectFile)) {
 
 # Selecting and Assessing The Best Model
 
-The main statistics from the model are summarized below.
+The main statistics from the models are summarized below.
 
-The best model found was:
 
 ```r
 extractModelData = function(model, modelName){
@@ -222,7 +221,7 @@ datatable(models, rownames=FALSE, options = list( searching = TRUE, pageLength =
 <!--html_preserve--><div id="htmlwidget-4277" style="width:100%;height:auto;" class="datatables"></div>
 <script type="application/json" data-for="htmlwidget-4277">{"x":{"data":[["CART","CART","CART","GBM","GBM","GBM","GBM","GBM","GBM","GBM","GBM","GBM","Random Forest","Random Forest","Random Forest"],[0.502417343137768,0.445117903980671,0.320014642954085,0.751053992053709,0.855687149776954,0.894741220942358,0.821580110420318,0.906210676226546,0.941785044251919,0.854410391747501,0.931798018246428,0.961869648990362,0.991914704503752,0.992811240756131,0.988557505713849],[0.350440391948342,0.257810819480977,0.0543680382410672,0.684334941722224,0.817163733998677,0.866755977011309,0.774117331117109,0.881316621683666,0.926346910286407,0.815763061688427,0.913697814218387,0.951762338008385,0.989771195114503,0.990906309731766,0.985525099591897],[0.0142014985421729,0.0606644049917811,0.0391799047894189,0.0120227518559038,0.011447877925441,0.00871252739972929,0.0116224435326718,0.00823878589267505,0.00606032609364307,0.00993494614669752,0.00632997436431579,0.00433653028446463,0.0027591913307435,0.00237093325381416,0.00316098069674703],[0.0205912455342978,0.101992036685577,0.0595849748351974,0.0151394505492233,0.0144944387169813,0.0110325833514154,0.0147040914193207,0.0104165058773236,0.00766172571074186,0.0125564315583976,0.00800693047737858,0.00548499828278092,0.00349148122368023,0.00299981013016855,0.00399865139841838]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Model</th>\n      <th>Accuracy</th>\n      <th>Kappa</th>\n      <th>AccuracySD</th>\n      <th>KappaSD</th>\n    </tr>\n  </thead>\n</table>","options":{"searching":true,"pageLength":10,"columnDefs":[{"className":"dt-right","targets":[1,2,3,4]}],"order":[],"autoWidth":false,"orderClasses":false},"callback":null,"filter":"none"},"evals":[]}</script><!--/html_preserve-->
 
-The table shows that Random Forest obtained the best model, including the second and third places.  GBM took the second place on the overall results. The worst accuracy was from CART. The results are expected, since GBM and Random Forest ensemble results from multiple classifiers. 
+The table shows that Random Forest obtained the best model, including the second and third places. GBM took the second place on the overall results. The worst accuracy was from CART. The results are expected, since GBM and Random Forest ensemble results from multiple classifiers. 
 
 ## Selected Model
 
@@ -255,7 +254,7 @@ bestModel
 ## The final value used for the model was mtry = 29.
 ```
 
-To estimate the accuracy of the best model, we use our validation set, **created from the training set at the begining of the report**. Since it was not used during the training, we expect to evaluate the accuracy on unseen data.
+To estimate the accuracy of the best model, we use our validation set, **created from the training set at the beginning of the report**. Since it was not used during the training, we expect to evaluate the accuracy on unseen data.
 
 ## Validating The Selected Model
 
@@ -326,3 +325,17 @@ outOfSample
 ```
 
 This model was used to answer the part 1 of the Course Project and obtained 100% of the predictions using the *courseraValidation* set.
+
+
+# Concluding Remarks
+
+The model created has a great precision and could be trained in a relatively short time on a local machine. Considering those aspects, we describe some choices made:
+
+ - PCA could have been used to to reduce the number of features on the sets. It was not used due to the satisfactory execution time on the local machine and the high number of attributes already removed during the preprocessing phase;
+ - Random Forest does not require a 10-Fold Cross Validation during the training, considering its operating mode. It was performed in order to keep the same standard as the other models tested;
+ - No combination of models were performed after training of the models considering that Random Forest is already a ensemble technique and its results were already satisfactory;
+ - The imbalance of the classes were not big enough to reduce the model effectiveness. 
+ 
+  
+
+
