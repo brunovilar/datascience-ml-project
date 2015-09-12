@@ -86,6 +86,7 @@ img {
 <li><a href="#validating-the-selected-model">Validating The Selected Model</a></li>
 <li><a href="#check-out-of-sample-error">Check Out of Sample Error</a></li>
 </ul></li>
+<li><a href="#concluding-remarks">Concluding Remarks</a></li>
 </ul>
 </div>
 
@@ -99,7 +100,7 @@ img {
 <p>In the context of the course, two files were provided: <em>pml-training.csv</em> and <em>pml-testing.csv</em>.</p>
 <pre class="r"><code>labeledDataset = read.csv(file = &quot;./data/pml-training.csv&quot;, stringsAsFactors=FALSE)
 unlabledDataset = read.csv(file = &quot;./data/pml-testing.csv&quot;)</code></pre>
-<p>As we dont have access to the labels of the second dataset, we need to creat a validation set from the <em>pml-training.csv</em>. The test set will be automatically extracted by <a href="https://topepo.github.io/caret/">Caret package</a> during repeated 10 fold cross validation. The <em>pml-testing.csv</em> is considered an alternative validation, performed by Coursera’s website. For this purpose, we divided the training into training and validation sets, respectivelly, with 75% and 25% of the rows.</p>
+<p>As we do not have access to the labels of the second dataset, we need to creat a validation set from the <em>pml-training.csv</em>. The test set will be automatically extracted by <a href="https://topepo.github.io/caret/">Caret package</a> during repeated 10 fold cross validation. The <em>pml-testing.csv</em> is considered an alternative validation, performed by Coursera’s website. For this purpose, we divided the training into training and validation sets, respectivelly, with 75% and 25% of the rows.</p>
 <pre class="r"><code>courseraValidation = unlabledDataset
 
 trainingIndex = createDataPartition(labeledDataset$classe, p = 0.75, list = FALSE)[, 1]
@@ -134,7 +135,7 @@ datatable(results, rownames=FALSE, options = list( searching = TRUE, pageLength 
 training = training[, !(names(training) %in% columnsToRemove)]
 validation = validation[, !(names(validation) %in% columnsToRemove)]
 courseraValidation = courseraValidation[, !(names(courseraValidation) %in% columnsToRemove)]</code></pre>
-<p>Originally we thought in using the timestamp information, extracting features such as week day and hour of the day as a indicative of the users’ routines. However, the number of values are limited (as shown below) and it is better for the model to depend only on sensors to recognize the human activities.</p>
+<p>Originally we though about using the timestamp information by extracting features such as week day and hour of the day as a indicative of the users’ routines. However, the number of values are limited (as shown below) and it is better for the model to rely only on sensors to recognize the human activities.</p>
 <pre class="r"><code>dateTime = strptime(as.character(training$cvtd_timestamp), &quot;%d/%m/%Y %H:%M&quot;)
 
 df = data.frame(Columns=c(&quot;Month&quot;, &quot;Day of Month&quot;, &quot;Day of Week&quot;, &quot;Hour&quot;),
@@ -148,7 +149,7 @@ df = data.frame(Columns=c(&quot;Month&quot;, &quot;Day of Month&quot;, &quot;Day
 datatable(df, rownames=FALSE, options = list( searching = FALSE, pageLength = 5 ))</code></pre>
 <p><div id="htmlwidget-3390" style="width:100%;height:auto;" class="datatables"></div>
 <script type="application/json" data-for="htmlwidget-3390">{"x":{"data":[["Month","Day of Month","Day of Week","Hour"],["12, 11","5, 2, 28, 30","1, 5, 3","11, 14, 13, 17"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Columns</th>\n      <th>Values</th>\n    </tr>\n  </thead>\n</table>","options":{"searching":false,"pageLength":5,"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[5,10,25,50,100]},"callback":null,"filter":"none"},"evals":[]}</script></p>
-<p>As consequence, we removed timestamp columns (<em>raw_timestamp_part_1</em>, <em>raw_timestamp_part_2</em> and <em>cvtd_timestamp</em>) as well as columns that are used for internal control of the dataset and are not related to the movements (<em>X</em>, <em>new_window</em> and <em>num_window</em>) – see page 16 of <a href="http://groupware.les.inf.puc-rio.br/public/2012.SBIA.Ugulino.WearableComputing-Presentation.pdf">slides</a>.</p>
+<p>As consequence, we removed timestamp columns (<em>raw_timestamp_part_1</em>, <em>raw_timestamp_part_2</em> and <em>cvtd_timestamp</em>) as well as columns that are used for internal control of the dataset and are not related to the movements (<em>X</em>, <em>new_window</em> and <em>num_window</em>) – see page 16 of <a href="http://groupware.les.inf.puc-rio.br/public/2012.SBIA.Ugulino.WearableComputing-Presentation.pdf">slides</a> for more details.</p>
 <pre class="r"><code>columnsToRemove = c('raw_timestamp_part_1', 'raw_timestamp_part_2', 'cvtd_timestamp', 'X', 'new_window', 'num_window')
 
 training = training[, !(names(training) %in% columnsToRemove)]
@@ -162,7 +163,7 @@ validation$user_name = as.factor(validation$user_name)
 validation$classe = as.factor(validation$classe)
 
 courseraValidation$user_name = as.factor(courseraValidation$user_name)</code></pre>
-<p>At the end, 106 columns were removed and the resulting structure is the following:</p>
+<p>At the end, 106 columns were removed. The resulting structure is the following:</p>
 <pre class="r"><code>datatable(data.frame(Column=sort(colnames(training))), rownames=FALSE, options = list( searching = TRUE, pageLength = 10 ))</code></pre>
 <p><div id="htmlwidget-1441" style="width:100%;height:auto;" class="datatables"></div>
 <script type="application/json" data-for="htmlwidget-1441">{"x":{"data":[["accel_arm_x","accel_arm_y","accel_arm_z","accel_belt_x","accel_belt_y","accel_belt_z","accel_dumbbell_x","accel_dumbbell_y","accel_dumbbell_z","accel_forearm_x","accel_forearm_y","accel_forearm_z","classe","gyros_arm_x","gyros_arm_y","gyros_arm_z","gyros_belt_x","gyros_belt_y","gyros_belt_z","gyros_dumbbell_x","gyros_dumbbell_y","gyros_dumbbell_z","gyros_forearm_x","gyros_forearm_y","gyros_forearm_z","magnet_arm_x","magnet_arm_y","magnet_arm_z","magnet_belt_x","magnet_belt_y","magnet_belt_z","magnet_dumbbell_x","magnet_dumbbell_y","magnet_dumbbell_z","magnet_forearm_x","magnet_forearm_y","magnet_forearm_z","pitch_arm","pitch_belt","pitch_dumbbell","pitch_forearm","roll_arm","roll_belt","roll_dumbbell","roll_forearm","total_accel_arm","total_accel_belt","total_accel_dumbbell","total_accel_forearm","user_name","yaw_arm","yaw_belt","yaw_dumbbell","yaw_forearm"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Column</th>\n    </tr>\n  </thead>\n</table>","options":{"searching":true,"pageLength":10,"order":[],"autoWidth":false,"orderClasses":false},"callback":null,"filter":"none"},"evals":[]}</script></p>
@@ -175,15 +176,15 @@ courseraValidation$user_name = as.factor(courseraValidation$user_name)</code></p
 <li>Center and Scale of the numeric values as preprocessing steps;</li>
 <li>3 algorithms were tested:
 <ul>
-<li><a href="https://topepo.github.io/caret/Tree_Based_Model.html">CART</a> as the method;</li>
+<li><a href="https://topepo.github.io/caret/Tree_Based_Model.html">CART</a>;</li>
 <li><a href="https://topepo.github.io/caret/Boosting.html">Stochastic Gradient Boosting</a>;<br /></li>
-<li><a href="https://topepo.github.io/caret/Random_Forest.html">Random Forest</a> as the method;</li>
+<li><a href="https://topepo.github.io/caret/Random_Forest.html">Random Forest</a>;</li>
 </ul></li>
 <li>For each algorithm a 10-fold cross with 5 repetitions were performed to select the best model based on parameter tunning;</li>
 <li>The execution of the models were performed using 5 cores;</li>
-<li>No down-sampling/up-sampling were applied. There is a difference on the number of classes (A:4185 B:2848 C:2567 D:2412 E:2706 ), but the imbalance is not exagerated.</li>
+<li>No down-sampling/up-sampling were applied. There is a difference on the number of classes (A:4185 B:2848 C:2567 D:2412 E:2706 ), but the imbalance is not exaggerated.</li>
 </ul>
-<p>The configuration of the preprocessing, 10 fold cross validation with repetition and use of 5 cores was performed as follows.</p>
+<p>The configuration of the preprocessing steps, performed on all experiments, is presented below.</p>
 <pre class="r"><code>library(doMC)
 registerDoMC(cores = 5)
 control = trainControl(method=&quot;repeatedcv&quot;, number=10, repeats=5, preProcOptions = c(&quot;center&quot;, &quot;scale&quot;))</code></pre>
@@ -223,8 +224,7 @@ if (file.exists(rObjectFile)) {
 </div>
 <div id="selecting-and-assessing-the-best-model" class="section level1">
 <h1>Selecting and Assessing The Best Model</h1>
-<p>The main statistics from the model are summarized below.</p>
-<p>The best model found was:</p>
+<p>The main statistics from the models are summarized below.</p>
 <pre class="r"><code>extractModelData = function(model, modelName){
 
     resultsSize = length(model$results$Accuracy)
@@ -269,7 +269,7 @@ bestModel</code></pre>
 ## 
 ## Accuracy was used to select the optimal model using  the largest value.
 ## The final value used for the model was mtry = 29.</code></pre>
-<p>To estimate the accuracy of the best model, we use our validation set, <strong>created from the training set at the begining of the report</strong>. Since it was not used during the training, we expect to evaluate the accuracy on unseen data.</p>
+<p>To estimate the accuracy of the best model, we use our validation set, <strong>created from the training set at the beginning of the report</strong>. Since it was not used during the training, we expect to evaluate the accuracy on unseen data.</p>
 </div>
 <div id="validating-the-selected-model" class="section level2">
 <h2>Validating The Selected Model</h2>
@@ -320,6 +320,16 @@ outOfSample</code></pre>
 <pre><code>## [1] 0.001427406</code></pre>
 <p>This model was used to answer the part 1 of the Course Project and obtained 100% of the predictions using the <em>courseraValidation</em> set.</p>
 </div>
+</div>
+<div id="concluding-remarks" class="section level1">
+<h1>Concluding Remarks</h1>
+<p>The model created has a great precision and could be trained in a relatively short time on a local machine. Considering those aspects, we describe some choices made:</p>
+<ul>
+<li>PCA could have been used to to reduce the number of features on the sets. It was not used due to the satisfactory execution time on the local machine and the high number of attributes already removed during the preprocessing phase;</li>
+<li>Random Forest does not require a 10-Fold Cross Validation during the training, considering its operating mode. It was performed in order to keep the same standard as the other models tested;</li>
+<li>No combination of models were performed after training of the models considering that Random Forest is already a ensemble technique and its results were already satisfactory;</li>
+<li>The imbalance of the classes were not big enough to reduce the model effectiveness.</li>
+</ul>
 </div>
 
 
